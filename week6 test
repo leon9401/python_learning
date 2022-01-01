@@ -1,0 +1,60 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler,PolynomialFeatures
+df = pd.read_csv('/Users/leon94/Desktop/kc_house_data.csv')
+df.head()
+
+df.describe()
+
+df.dtypes
+
+df.drop(['id'],axis = 1, inplace = True)
+df.describe()
+
+df.value_counts(df['floors']).to_frame()
+
+sns.boxplot(x = df['waterfront'],y = df['price'])
+
+sns.regplot(x=df['sqft_above'],y=df['price'])
+
+lr = LinearRegression()
+lr.fit(df[['sqft_living']],df[['price']])
+lr.score(df[['sqft_living']],df[['price']])
+
+features =["floors", "waterfront","lat" ,"bedrooms" ,"sqft_basement" ,"view" ,"bathrooms","sqft_living15","sqft_above","grade","sqft_living"]     
+x = df[features]
+y = df['price']
+lr.fit(x,y)
+lr.score(x,y)
+
+Input=[('scale',StandardScaler()),('polynomial', PolynomialFeatures(include_bias=False)),('model',LinearRegression())]
+pipe=Pipeline(Input)
+features =["floors", "waterfront","lat" ,"bedrooms" ,"sqft_basement" ,"view" ,"bathrooms","sqft_living15","sqft_above","grade","sqft_living"]     
+x = df[features]
+y = df['price']
+pipe.fit(x,y)
+pipe.score(x,y)
+
+
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import train_test_split
+
+x_train, x_test, y_train, y_test  = train_test_split(x,y,test_size=0.3, random_state=0)
+
+from sklearn.linear_model import Ridge
+rr = Ridge(alpha=0.1)
+rr.fit(x_train,y_train)
+rr.score(x_test, y_test)
+
+pr = PolynomialFeatures(degree=2)
+x_train_pr = pr.fit_transform(x_train)
+x_test_pr = pr.fit_transform(x_test)
+
+RigeModel=Ridge(alpha=0.1)
+RigeModel.fit(x_train_pr, y_train)
+RigeModel.score(x_test_pr, y_test)
+
